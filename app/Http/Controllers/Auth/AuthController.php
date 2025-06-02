@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,7 +22,7 @@ class AuthController extends Controller
         ]);
     
         // Primero verificamos si el usuario existe
-        $user = \App\Models\User::where('username', $request->username)->first();
+        $user = User::where('username', $request->username)->first();
     
         if ($user) {
             // Si el usuario existe, intentamos autenticar

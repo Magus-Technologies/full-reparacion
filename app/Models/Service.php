@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Carbon\Carbon;
 
 class Service extends Model
 {
@@ -13,9 +15,27 @@ class Service extends Model
         'service', 'description', 'cost'
     ];
 
-    protected $dates = [
-        'date_created', 'date_updated'
+    // En Laravel 12, se recomienda usar casts en lugar de $dates
+    protected $casts = [
+        'date_created' => 'datetime',
+        'date_updated' => 'datetime',
     ];
+
+    // Método para asegurar que date_created siempre sea un objeto Carbon
+    protected function dateCreated(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value ? Carbon::parse($value) : null,
+        );
+    }
+
+    // Método para asegurar que date_updated siempre sea un objeto Carbon
+    protected function dateUpdated(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value ? Carbon::parse($value) : null,
+        );
+    }
 
     public function repairs()
     {
