@@ -295,82 +295,8 @@ function confirmDelete(id) {
 
 @push('modals')
 <style>
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1050;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.4);
-    }
-
-    .modal.show {
-        display: block;
-    }
-
-    .modal-dialog {
-        position: relative;
-        width: auto;
-        margin: 1.75rem auto;
-        max-width: 600px;
-    }
-
-    .modal-content {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        background-color: #fff;
-        border-radius: 0.3rem;
-        outline: 0;
-    }
-
-    .modal-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1rem;
-        border-bottom: 1px solid #dee2e6;
-    }
-
-    .modal-body {
-        position: relative;
-        flex: 1 1 auto;
-        padding: 1rem;
-    }
-
-    .modal-footer {
-        display: flex;
-        justify-content: flex-end;
-        padding: 1rem;
-        border-top: 1px solid #dee2e6;
-        gap: 0.5rem;
-    }
-
-    .modal-backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 1040;
-        width: 100vw;
-        height: 100vh;
-        background-color: #000;
-        opacity: 0.5;
-    }
-
-    .close {
-        float: right;
-        font-size: 1.5rem;
-        font-weight: 700;
-        line-height: 1;
-        color: #000;
-        text-shadow: 0 1px 0 #fff;
-        opacity: .5;
-        background: transparent;
-        border: 0;
-        cursor: pointer;
+    body {
+        background-color: red !important;
     }
 </style>
 @endpush

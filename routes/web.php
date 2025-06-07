@@ -6,7 +6,11 @@ use App\Http\Controllers\Admin\RepairPDFController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ClientController;
-
+use App\Http\Controllers\admin\KardexController;
+use App\Http\Controllers\admin\ComprasController;
+use App\Http\Controllers\admin\CategoriaController;
+use App\Http\Controllers\admin\UnidadMedidaController;
+use App\Http\Controllers\admin\BarcodeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 
@@ -26,7 +30,7 @@ Route::get('/check-status', [HomeController::class, 'checkStatus'])->name('check
 
 Route::middleware(['auth'])->group(function () {
     // Rutas de administración
-    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         Route::resource('repairs', RepairController::class);
         Route::get('/repairs/get-client-dni/{id}', [RepairController::class, 'getClientDNI'])->name('admin.repairs.get-client-dni');
@@ -43,6 +47,44 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('users', UserController::class);
         Route::get('settings', [SettingController::class, 'index'])->name('settings');
         Route::post('settings', [SettingController::class, 'update'])->name('settings.update');
+        
+        Route::get('/kardex', [KardexController::class, 'index'])->name('kardex.index');
+
+        // Rutas AJAX para productos
+         Route::get('/kardex/productos/export-excel', [KardexController::class, 'exportExcel'])->name('kardex.productos.export-excel');
+        Route::get('/kardex/productos/data', [KardexController::class, 'getProductos'])->name('kardex.productos.data');
+        Route::post('/kardex/productos/store', [KardexController::class, 'store'])->name('kardex.productos.store');
+        Route::get('/kardex/productos/{id}', [KardexController::class, 'show'])->name('kardex.productos.show');
+        Route::put('/kardex/productos/{id}', [KardexController::class, 'update'])->name('kardex.productos.update');
+        Route::delete('/kardex/productos/delete', [KardexController::class, 'destroy'])->name('kardex.productos.destroy');
+        Route::get('/kardex/productos/{id}/precios', [KardexController::class, 'getPrecios'])->name('kardex.productos.precios');
+        Route::post('/kardex/productos/precios/update', [KardexController::class, 'updatePrecios'])->name('kardex.productos.precios.update');
+        Route::post('/kardex/productos/stock/add', [KardexController::class, 'addStock'])->name('kardex.productos.stock.add');
+        Route::post('/kardex/productos/precios/save', [KardexController::class, 'savePrecios'])->name('kardex.productos.precios.save');
+        Route::get('/kardex/productos/{id}/multi-precios', [KardexController::class, 'getMultiPrecios'])->name('kardex.productos.multi-precios');
+        // Después de: Route::get('/kardex/productos/{id}/multi-precios', [KardexController::class, 'getMultiPrecios'])->name('kardex.productos.multi-precios');
+       
+        // Después de las otras rutas de admin
+        Route::get('/barcode/generate', [BarcodeController::class, 'generate']);
+
+        Route::get('/compras', [ComprasController::class, 'index'])->name('compras.index');
+        Route::get('/categorias', [CategoriaController::class, 'index'])->name('categorias.index');
+        // Rutas para unidades de medida - Vista principal
+        Route::get('/unidades', [UnidadMedidaController::class, 'index'])->name('unidades.index');
+
+        // Rutas para categorías AJAX
+        Route::get('/categorias/get', [App\Http\Controllers\admin\CategoriaController::class, 'getCategorias']);
+        Route::post('/categorias/save', [App\Http\Controllers\admin\CategoriaController::class, 'saveCategoria']);
+        Route::post('/categorias/getOne', [App\Http\Controllers\admin\CategoriaController::class, 'getOneCategoria']);
+        Route::post('/categorias/update', [App\Http\Controllers\admin\CategoriaController::class, 'updateCategoria']);
+        Route::post('/categorias/delete', [App\Http\Controllers\admin\CategoriaController::class, 'deleteCategoria']);
+
+        // Rutas para unidades de medida AJAX
+        Route::get('/unidades/get', [App\Http\Controllers\admin\UnidadMedidaController::class, 'getUnidades'])->name('unidades.get');
+        Route::post('/unidades/save', [App\Http\Controllers\admin\UnidadMedidaController::class, 'saveUnidad'])->name('unidades.save');
+        Route::post('/unidades/getOne', [App\Http\Controllers\admin\UnidadMedidaController::class, 'getOneUnidad'])->name('unidades.getOne');
+        Route::post('/unidades/update', [App\Http\Controllers\admin\UnidadMedidaController::class, 'updateUnidad'])->name('unidades.update');
+        Route::post('/unidades/delete', [App\Http\Controllers\admin\UnidadMedidaController::class, 'deleteUnidad'])->name('unidades.delete');
     });
 });
 
