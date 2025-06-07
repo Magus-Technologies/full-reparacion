@@ -6,11 +6,11 @@ use App\Http\Controllers\Admin\RepairPDFController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ClientController;
-use App\Http\Controllers\admin\KardexController;
-use App\Http\Controllers\admin\ComprasController;
-use App\Http\Controllers\admin\CategoriaController;
-use App\Http\Controllers\admin\UnidadMedidaController;
-use App\Http\Controllers\admin\BarcodeController;
+use App\Http\Controllers\Admin\KardexController;
+use App\Http\Controllers\Admin\ComprasController;
+use App\Http\Controllers\Admin\CategoriaController;
+use App\Http\Controllers\Admin\UnidadMedidaController;
+use App\Http\Controllers\Admin\BarcodeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 
@@ -73,18 +73,18 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/unidades', [UnidadMedidaController::class, 'index'])->name('unidades.index');
 
         // Rutas para categorías AJAX
-        Route::get('/categorias/get', [App\Http\Controllers\admin\CategoriaController::class, 'getCategorias']);
-        Route::post('/categorias/save', [App\Http\Controllers\admin\CategoriaController::class, 'saveCategoria']);
-        Route::post('/categorias/getOne', [App\Http\Controllers\admin\CategoriaController::class, 'getOneCategoria']);
-        Route::post('/categorias/update', [App\Http\Controllers\admin\CategoriaController::class, 'updateCategoria']);
-        Route::post('/categorias/delete', [App\Http\Controllers\admin\CategoriaController::class, 'deleteCategoria']);
+        Route::get('/categorias/get', [CategoriaController::class, 'getCategorias']);
+        Route::post('/categorias/save', [CategoriaController::class, 'saveCategoria']);
+        Route::post('/categorias/getOne', [CategoriaController::class, 'getOneCategoria']);
+        Route::post('/categorias/update', [CategoriaController::class, 'updateCategoria']);
+        Route::post('/categorias/delete', [CategoriaController::class, 'deleteCategoria']);
 
         // Rutas para unidades de medida AJAX
-        Route::get('/unidades/get', [App\Http\Controllers\admin\UnidadMedidaController::class, 'getUnidades'])->name('unidades.get');
-        Route::post('/unidades/save', [App\Http\Controllers\admin\UnidadMedidaController::class, 'saveUnidad'])->name('unidades.save');
-        Route::post('/unidades/getOne', [App\Http\Controllers\admin\UnidadMedidaController::class, 'getOneUnidad'])->name('unidades.getOne');
-        Route::post('/unidades/update', [App\Http\Controllers\admin\UnidadMedidaController::class, 'updateUnidad'])->name('unidades.update');
-        Route::post('/unidades/delete', [App\Http\Controllers\admin\UnidadMedidaController::class, 'deleteUnidad'])->name('unidades.delete');
+        Route::get('/unidades/get', [UnidadMedidaController::class, 'getUnidades'])->name('unidades.get');
+        Route::post('/unidades/save', [UnidadMedidaController::class, 'saveUnidad'])->name('unidades.save');
+        Route::post('/unidades/getOne', [UnidadMedidaController::class, 'getOneUnidad'])->name('unidades.getOne');
+        Route::post('/unidades/update', [UnidadMedidaController::class, 'updateUnidad'])->name('unidades.update');
+        Route::post('/unidades/delete', [UnidadMedidaController::class, 'deleteUnidad'])->name('unidades.delete');
     });
 });
 
