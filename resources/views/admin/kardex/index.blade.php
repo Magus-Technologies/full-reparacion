@@ -285,11 +285,12 @@
 
                         <div id="codigoBarrasPreview" style="display: none;" class="col-md-12">
                             <label class="form-label"><i class="fa fa-barcode me-1"></i>Vista previa del código de barras</label>
-                            <div class="text-center p-3 border rounded bg-light">
-                                <img id="barcodePreviewImg" class="img-fluid" style="max-height: 100px;">
-                                <div class="mt-2 text-muted small">Código de barras generado automáticamente</div>
+                            <div class="flex justify-center p-3 border rounded bg-light"> <!-- 🐱 flex + justify-center para centrar imagen horizontalmente -->
+                                <img id="barcodePreviewImg" class="max-h-[100px]" /> <!-- 🐱 uso Tailwind para max height 100px -->
                             </div>
+                            <div class="mt-2 text-muted small text-center">Código de barras generado automáticamente</div> <!-- 🐱 texto centrado en línea aparte -->
                         </div>
+
 
                         <!-- Campo oculto para usar_barra -->
                         <input type="hidden" id="usar_barra" value="1">
@@ -972,7 +973,7 @@ document.addEventListener('DOMContentLoaded', function() {
      * Load categories from server
      */
     function loadCategories() {
-        fetch('/admin/categorias/get')
+        fetch('{{ url("/admin/categorias/get") }}')
             .then(response => response.json())
             .then(data => {
                 // For create form
@@ -1006,7 +1007,7 @@ document.addEventListener('DOMContentLoaded', function() {
      * Load units from server
      */
     function loadUnits() {
-        fetch('/admin/unidades/get')
+        fetch('{{ url("/admin/unidades/get") }}')
             .then(response => response.json())
             .then(data => {
                 // For create form
@@ -1054,7 +1055,7 @@ document.addEventListener('DOMContentLoaded', function() {
         processing: true,
         serverSide: true,
         ajax: {
-            url: '/admin/kardex/productos/data',
+            url: '{{ url("/admin/kardex/productos/data") }}',
             type: 'GET'
         },
         columns: [
@@ -1197,7 +1198,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // AJAX submission
         $.ajax({
-            url: '/admin/kardex/productos/store',
+            url: '{{ url("/admin/kardex/productos/store") }}',
             type: 'POST',
             data: formData,
             processData: false,
@@ -1271,7 +1272,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Load product data
         $.ajax({
-            url: `/admin/kardex/productos/${productId}`,
+            url: '{{ url("/admin/kardex/productos") }}/' + productId,
             type: 'GET',
             success: function(response) {
                 if (response.res) {
@@ -1334,7 +1335,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to load multi-prices
     function loadMultiPrecios(productId) {
         $.ajax({
-            url: `/admin/kardex/productos/${productId}/multi-precios`,
+            url: '{{ url("/admin/kardex/productos") }}/' + productId + '/multi-precios',
             type: 'GET',
             success: function(response) {
                 if (response.res) {
@@ -2003,7 +2004,7 @@ function generateBarcodePreview(codigo) {
             });
         } else {
             // Fallback: usar una URL para generar código de barras
-            const barcodeUrl = `/admin/barcode/generate?code=${encodeURIComponent(codigo)}`;
+            const barcodeUrl = '{{ url("/admin/barcode/generate") }}?code=' + encodeURIComponent(codigo);
             $('#barcodePreviewImg').attr('src', barcodeUrl);
         }
     } catch (error) {

@@ -140,7 +140,7 @@ $(document).ready(function() {
         searching: true,
         destroy: true,
         ajax: {
-            url: "/admin/categorias/get", // Ruta Laravel
+            url: "{{ url('/admin/categorias/get') }}",
             method: "GET",
             dataSrc: "",
         },
@@ -195,7 +195,7 @@ $(document).ready(function() {
         $('#submitCategoria').prop('disabled', true).text('Guardando...');
         
         $.ajax({
-            url: "/admin/categorias/save",
+            url: "{{ url('/admin/categorias/save') }}", 
             method: "POST",
             data: {
                 nombre: nombreCategoria,
@@ -254,7 +254,7 @@ $(document).ready(function() {
             cancelButtonText: "Cancelar"
         }).then((result) => {
             if (result.isConfirmed) {
-                $.post("/admin/categorias/delete", {
+                $.post("{{ url('/admin/categorias/delete') }}", { 
                     id: id
                 }, function(data, textStatus, jqXHR) {
                     Swal.fire({
@@ -278,9 +278,9 @@ $(document).ready(function() {
     // Cargar datos para editar
     $("#tabla_clientes").on("click", ".btnEditar", function(event) {
         let id = $(this).data('id');
-        $.post("/admin/categorias/getOne", {
+        $.post("{{ url('/admin/categorias/getOne') }}", {
             id: id
-        }, function(data, textStatus, jqXHR) {
+        }, function(data, textStatus, jqXHR) {  // Movido paréntesis de cierre y coma
             $('#nombreCategoriaU').val(data[0].nombre);
             $('#idCatU').val(data[0].id);
             const modal = new bootstrap.Modal(document.getElementById('updateCategoria'));
@@ -297,10 +297,10 @@ $(document).ready(function() {
 
     // Actualizar categoría
     $('#updateCategoriaBtn').click(function() {
-        $.post("/admin/categorias/update", {
+        $.post("{{ url('/admin/categorias/update') }}", { 
             nombre: $('#nombreCategoriaU').val(),
             id: $('#idCatU').val()
-        }, function(data, textStatus, jqXHR) {
+        }, function(data, textStatus, jqXHR) {  // Movido paréntesis de cierre y coma
             Swal.fire({
                 title: "Éxito",
                 text: "Se actualizó correctamente",
