@@ -92,7 +92,7 @@
                         </a>
                         <!-- 🧩 Aquí puedes añadir más secciones en el futuro -->
                          <!-- Nuevo módulo Compras dentro de Almacén --> <!-- 「コード」 -->
-                        <a href="#" 
+                        <a href="{{ route('admin.compras.index') }}" 
                             class="block px-2 py-1 hover:bg-gray-800 rounded {{ request()->routeIs('admin.compras.*') ? 'bg-gray-800' : '' }}" 
                             style="font-size: 0.98rem; text-decoration: none;"> 
                             🛒 Compras <!-- 「コード」 -->

@@ -64,10 +64,13 @@
 </div>
 
 <script>
-document.getElementById('login-form').addEventListener('submit', function(e) {
+const loginForm = document.getElementById('login-form');
+
+loginForm.addEventListener('submit', function(e) {
     e.preventDefault();
-    
-    const formData = new FormData(this);
+
+    const formData = new FormData(loginForm);
+
     const generalError = document.getElementById('general-error');
     const generalErrorText = document.getElementById('general-error-text');
     const passwordError = document.getElementById('password-error');
@@ -76,10 +79,10 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
     generalError.classList.add('hidden');
     passwordError.classList.add('hidden');
 
-    fetch('{{ route('login') }}', {
+    fetch('/login', {
         method: 'POST',
         headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
             'Accept': 'application/json',
         },
         body: formData

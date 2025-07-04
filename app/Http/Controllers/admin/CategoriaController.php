@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CategoriaController extends Controller
 {
@@ -16,13 +17,13 @@ class CategoriaController extends Controller
     // NUEVOS MÉTODOS - Agregar después de index()
     public function getCategorias()
     {
-        $categorias = \DB::table('categorias')->select('id', 'nombre')->get();
+        $categorias = DB::table('categorias')->select('id', 'nombre')->get();
         return response()->json($categorias);
     }
 
     public function saveCategoria(Request $request)
     {
-        \DB::table('categorias')->insert([
+        DB::table('categorias')->insert([
             'nombre' => $request->nombre,
         ]);
         
@@ -31,7 +32,7 @@ class CategoriaController extends Controller
 
     public function getOneCategoria(Request $request)
     {
-        $categoria = \DB::table('categorias')
+        $categoria = DB::table('categorias')
             ->where('id', $request->id)
             ->select('id', 'nombre')
             ->get();
@@ -41,7 +42,7 @@ class CategoriaController extends Controller
 
     public function updateCategoria(Request $request)
     {
-        \DB::table('categorias')
+        DB::table('categorias')
             ->where('id', $request->id)
             ->update([
                 'nombre' => $request->nombre,
@@ -52,7 +53,7 @@ class CategoriaController extends Controller
 
     public function deleteCategoria(Request $request)
     {
-        \DB::table('categorias')->where('id', $request->id)->delete();
+        DB::table('categorias')->where('id', $request->id)->delete();
         return response()->json(['success' => true]);
     }
 

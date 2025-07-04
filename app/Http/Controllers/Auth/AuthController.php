@@ -31,11 +31,11 @@ class AuthController extends Controller
     
                 if ($request->wantsJson()) {
                     return response()->json([
-                        'redirect' => '/admin'
+                        'redirect' => url('/admin')
                     ]);
                 }
     
-                return redirect()->intended('/admin');
+                return redirect()->intended(url('/admin'));
             }
     
             // Si la autenticación falla, significa que la contraseña es incorrecta

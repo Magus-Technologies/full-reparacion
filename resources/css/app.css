@@ -17,6 +17,7 @@
   background: linear-gradient(to right, #01e4ff, #1755eb);
   box-shadow: 0 6px 16px rgba(1, 228, 255, 0.4);
   transform: translateY(-0.125rem); /* -translate-y-0.5 */
+  color: white;
 }
 
 .btn-accion:active {

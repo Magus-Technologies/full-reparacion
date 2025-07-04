@@ -43,7 +43,9 @@ class ProductoStoreRequest extends FormRequest
             'usar_multiprecio' => 'boolean',
             'precios' => 'nullable|array',
             'precios.*.nombre' => 'required_with:precios|string|max:255',
-            'precios.*.precio' => 'required_with:precios|numeric|min:0'
+            'precios.*.precio' => 'required_with:precios|numeric|min:0',
+            // Nueva regla para tipo_producto_control
+            'tipo_producto_control' => 'required|in:codigo_unico,cantidad'
         ];
     }
 

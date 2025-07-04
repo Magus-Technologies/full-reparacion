@@ -44,7 +44,8 @@ class Producto extends Model
         'detalle',
         'categoria',
         'descripcion',
-        'unidad'
+        'unidad',
+        'tipo_control'
     ];
 
     protected $casts = [

@@ -51,6 +51,7 @@ class ProductoUpdateRequest extends FormRequest
             'cod_barra_manual' => 'nullable|string|max:100',
             'imagen' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'usar_multiprecio' => 'boolean',
+            'es_codigo_unico_edit' => 'nullable|string',
         ];
     }
 }
