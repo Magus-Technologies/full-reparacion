@@ -11,6 +11,7 @@ use App\Models\Producto;
 use App\Models\ProductoPrecio;
 use App\Models\Categoria;
 use App\Models\UnidadMedida;
+use App\Models\SerieProducto;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
@@ -142,6 +143,19 @@ class KardexController extends Controller
 
             $producto = Producto::create($data);
 
+            // Guardar códigos únicos si es producto de tipo código único
+            if ($data['tipo_control'] === 'UNICO' && $request->has('codigos_unicos')) {
+                $codigosUnicos = $request->input('codigos_unicos', []);
+                foreach ($codigosUnicos as $codigo) {
+                    SerieProducto::create([
+                        'id_producto' => $producto->id_producto,
+                        'codigo_unico' => $codigo,
+                        'estado' => 'disponible',
+                        'fecha_ingreso' => now()
+                    ]);
+                }
+            }
+
             // Guardar precios múltiples si está habilitado
             if ($request->boolean('usar_multiprecio') && $request->has('precios')) {
                 foreach ($request->precios as $precio) {
@@ -187,22 +201,21 @@ class KardexController extends Controller
         }
     }
 
-   // Modificar el método update para asegurar que se guarden correctamente los precios
     public function update(ProductoUpdateRequest $request, $id)
     {
         try {
             DB::beginTransaction();
-
+            
             $producto = Producto::findOrFail($id);
             $data = $request->validated();
-
+            
             // Procesar imagen si existe
             if ($request->hasFile('imagen')) {
                 // Eliminar imagen anterior si existe
                 if ($producto->imagen) {
                     Storage::disk('public')->delete('productos/' . $producto->imagen);
                 }
-
+                
                 $imagen = $request->file('imagen');
                 $nombreImagen = time() . '_' . $imagen->getClientOriginalName();
                 Storage::disk('public')->putFileAs('productos', $imagen, $nombreImagen);
@@ -214,27 +227,27 @@ class KardexController extends Controller
                 }
                 $data['imagen'] = null;
             }
-
+            
             // Configurar valores
             $data['precio_unidad'] = $data['precio'];
             $data['iscbp'] = $request->get('afecto', 0);
             $data['usar_multiprecio'] = $request->boolean('usar_multiprecio');
             $data['usar_barra'] = $request->boolean('usar_barra');
-
+            
             // Mapear tipo_control basado en el switch del frontend
             $data['tipo_control'] = $request->boolean('es_codigo_unico_edit') ? 'UNICO' : 'CANTIDAD';
             
             // Mapeo correcto de precios
             $data['precio_menor'] = $request->get('precio1', 0);  // Precio Distribuidor → precio_menor
             $data['precio_mayor'] = $request->get('precio2', 0);  // Precio Mayorista → precio_mayor
-
-            // Asegurar que codSunat y unidad se actualicen correctamente  
+            
+            // Asegurar que codSunat y unidad se actualicen correctamente
             $data['codsunat'] = $request->get('codSunat', '');
             $data['unidad'] = $request->get('unidades', '');
             
             // Siempre guardar almacén como 1
             $data['almacen'] = '1';
-
+            
             // Buscar esta línea: // Generar código de barras
             // Y reemplazar esa sección por:
             // Manejar código de barras - MODIFICADO
@@ -243,12 +256,36 @@ class KardexController extends Controller
             } else {
                 $data['cod_barra'] = $request->get('cod_barra', '');
             }
-
+            
             $producto->update($data);
-
+            
+            // Actualizar códigos únicos si es producto de tipo código único
+            if ($data['tipo_control'] === 'UNICO' && $request->has('codigos_unicos')) {
+                $cantidadOriginal = $producto->cantidad;
+                $cantidadNueva = $data['cantidad'];
+                
+                // Solo procesar si la cantidad aumentó
+                if ($cantidadNueva > $cantidadOriginal) {
+                    // Eliminar códigos existentes
+                    SerieProducto::where('id_producto', $id)->delete();
+                    
+                    // Insertar nuevos códigos
+                    $codigosUnicos = $request->input('codigos_unicos', []);
+                    foreach ($codigosUnicos as $codigo) {
+                        SerieProducto::create([
+                            'id_producto' => $id,
+                            'codigo_unico' => $codigo,
+                            'estado' => 'disponible',
+                            'fecha_ingreso' => now()
+                        ]);
+                    }
+                }
+                // Si la cantidad disminuyó o se mantuvo igual, no se requieren códigos nuevos
+            }
+            
             DB::commit();
             return response()->json(['res' => true, 'message' => 'Producto actualizado exitosamente']);
-
+            
         } catch (\Exception $e) {
             DB::rollback();
             return response()->json(['res' => false, 'error' => $e->getMessage()], 500);
@@ -612,4 +649,38 @@ class KardexController extends Controller
             return response()->json(['res' => false, 'error' => $e->getMessage()], 500);
         }
     }
+
+    /**
+    * Guardar códigos únicos para un producto
+    */
+    public function guardarCodigosUnicos(Request $request, $id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $producto = Producto::findOrFail($id);
+            $codigos = $request->input('codigos_unicos', []);
+
+            // Eliminar códigos existentes para este producto
+            SerieProducto::where('id_producto', $id)->delete();
+
+            // Insertar nuevos códigos
+            foreach ($codigos as $codigo) {
+                SerieProducto::create([
+                    'id_producto' => $id,
+                    'codigo_unico' => $codigo,
+                    'estado' => 'disponible',
+                    'fecha_ingreso' => now()
+                ]);
+            }
+
+            DB::commit();
+            return response()->json(['res' => true, 'message' => 'Códigos únicos guardados exitosamente']);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['res' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
 }

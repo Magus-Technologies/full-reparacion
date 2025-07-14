@@ -185,19 +185,19 @@
                             <label class="form-label"><i class="fa fa-money-bill me-1"></i>Precio Venta</label>
                             <div class="input-group">
                                 <span class="input-group-text">S/</span>
-                                <input type="text" id="precio" class="form-control" required onkeypress="onlyNumber(event)">
+                                <input type="text" id="precio" class="form-control" required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label"><i class="fa fa-money-bill me-1"></i>Costo</label>
                             <div class="input-group">
                                 <span class="input-group-text">S/</span>
-                                <input type="text" id="costo" class="form-control" required onkeypress="onlyNumber(event)">
+                                <input type="text" id="costo" class="form-control" required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label"><i class="fa fa-cubes me-1"></i>Cantidad</label>
-                            <input type="text" id="cantidad" class="form-control" required onkeypress="onlyNumber(event)">
+                            <input type="text" id="cantidad" class="form-control" required>
                         </div>
                         
                         <!-- Cuarta fila: Unidades, Almacén y Código Sunat -->
@@ -225,14 +225,14 @@
                             <label class="form-label"><i class="fa fa-store me-1"></i>Precio Distribuidor</label>
                             <div class="input-group">
                                 <span class="input-group-text">S/</span>
-                                <input type="text" id="precio1" name="precio1" class="form-control" onkeypress="onlyNumber(event)">
+                                <input type="text" id="precio1" name="precio1" class="form-control">
                             </div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label"><i class="fa fa-shopping-cart me-1"></i>Precio Mayorista</label>
                             <div class="input-group">
                                 <span class="input-group-text">S/</span>
-                                <input type="text" id="precio2" name="precio2" class="form-control" onkeypress="onlyNumber(event)">
+                                <input type="text" id="precio2" name="precio2" class="form-control">
                             </div>
                         </div>
                         
@@ -273,6 +273,17 @@
                                     Control por: <strong id="tipoProductoText">Código Único</strong>
                                 </label>
                             </div>
+
+                            <!-- Botón Escanear Códigos (aparece condicionalmente) -->
+                            <div class="col-md-12 mt-3" id="botonEscanearContainer" style="display: none;">
+                                <button type="button" id="btnEscanearCodigos" class="btn btn-primary">
+                                    <i class="fa fa-qrcode me-2"></i>Escanear códigos únicos
+                                </button>
+                                <small class="text-muted d-block mt-1">
+                                    Debe escanear <span id="cantidadRequerida">0</span> códigos únicos antes de guardar
+                                </small>
+                            </div>
+
                         </div>
 
                         <div class="col-md-12">
@@ -413,7 +424,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label"><i class="fa fa-cubes me-1"></i>Cantidad</label>
-                            <input type="text" name="cantidad" id="edit_cantidad" class="form-control" onkeypress="onlyNumber(event)">
+                            <input type="text" name="cantidad" id="edit_cantidad" class="form-control">
                             <p id="edit_cantidad_warning" class="text-danger small mt-1" style="display: none;">
                                 <i class="fa fa-exclamation-triangle"></i> La cantidad está en 0
                             </p>
@@ -441,6 +452,17 @@
                                 </label>
                             </div>
                         </div>
+
+                        <!-- Botón Escanear Códigos para edición -->
+                        <div class="col-md-12 mt-3" id="botonEscanearContainer_edit" style="display: none;">
+                            <button type="button" id="btnEscanearCodigos_edit" class="btn btn-primary">
+                                <i class="fa fa-qrcode me-2"></i>Escanear códigos únicos
+                            </button>
+                            <small class="text-muted d-block mt-1">
+                                Debe escanear <span id="cantidadRequerida_edit">0</span> códigos únicos antes de guardar
+                            </small>
+                        </div>
+
 
                         <!-- NUEVA SECCIÓN: Vista previa del código de barras para edición -->
                         <div id="edit_codigoBarrasPreview" style="display: none;" class="col-md-12">
@@ -980,6 +1002,156 @@
     </div>
 </div>
 
+<!-- Modal de Escaneo de Códigos Únicos (para agregar) -->
+<div class="modal fade" id="modalEscanearCodigos" tabindex="-1" data-bs-focus="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #0d6efd;">
+                <h5 class="modal-title text-white">
+                    <i class="fa fa-barcode me-2"></i>ESCANEAR CÓDIGOS ÚNICOS DEL PRODUCTO
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Producto y Cantidad -->
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <label class="form-label fw-bold">Producto:</label>
+                        <div class="p-3 border rounded bg-light">
+                            <span id="nombreProductoEscaneo"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Cantidad esperada:</label>
+                        <div class="p-3 border rounded bg-light text-center">
+                            <span id="cantidadEsperada">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input de Escaneo -->
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <label class="form-label fw-bold">Código escaneado:</label>
+                        <input type="text" id="inputCodigoEscaneo" class="form-control" 
+                               placeholder="Ingrese o escanee el código" autocomplete="off">
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="button" id="btnAgregarCodigo" class="btn w-100" 
+                                style="background-color: #0dcaf0; color: white;">
+                            <i class="fa fa-plus me-1"></i>Agregar código
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista de Códigos Escaneados -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Códigos escaneados:</label>
+                    <div id="listaCodigosEscaneados" class="border rounded p-3" 
+                         style="background-color: #111111; min-height: 120px; max-height: 200px; overflow-y: auto;">
+                        <div id="mensajeNoCodigos" class="text-center py-4" style="color: #6c757d;">
+                            No hay códigos escaneados
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progreso -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-bold">Progreso: <span id="progresoTexto">0/0</span> códigos escaneados</span>
+                    </div>
+                    <div class="progress">
+                        <div id="barraProgreso" class="progress-bar bg-primary" style="width: 0%"></div>
+                    </div>
+                    <div class="text-center mt-2">
+                        <span id="estadoEscaneo" class="text-warning">+ Esperando códigos...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fa fa-times me-1"></i>Cancelar
+                </button>
+                <button type="button" id="btnGuardarEscaneados" class="btn btn-success" disabled>
+                    <i class="fa fa-check me-1"></i>Guardar escaneados
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Div de Escaneo de Códigos Únicos (para edición) -->
+<div id="divEscanearCodigos" class="d-none" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1055; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5); width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="mb-0">
+            <i class="fa fa-barcode me-2"></i>ESCANEAR CÓDIGOS ÚNICOS DEL PRODUCTO
+        </h5>
+        <button type="button" id="btnCerrarDivEscanear" class="btn-close" aria-label="Cerrar"></button>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <label class="form-label fw-bold">Producto:</label>
+            <div class="p-3 border rounded bg-light">
+                <span id="nombreProductoEscaneoEdit"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label fw-bold">Cantidad esperada:</label>
+            <div class="p-3 border rounded bg-light text-center">
+                <span id="cantidadEsperadaEdit">0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <label class="form-label fw-bold">Código escaneado:</label>
+            <input type="text" id="inputCodigoEscaneoEdit" class="form-control" 
+                   placeholder="Ingrese o escanee el código" autocomplete="off">
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+            <button type="button" id="btnAgregarCodigoEdit" class="btn w-100" 
+                    style="background-color: #0dcaf0; color: white;">
+                <i class="fa fa-plus me-1"></i>Agregar código
+            </button>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label fw-bold">Códigos escaneados:</label>
+        <div id="listaCodigosEscaneadosEdit" class="border rounded p-3" 
+             style="background-color: #111111; min-height: 120px; max-height: 200px; overflow-y: auto;">
+            <div id="mensajeNoCodigosEdit" class="text-center py-4" style="color: #6c757d;">
+                No hay códigos escaneados
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <div class="d-flex justify-content-between mb-2">
+            <span class="fw-bold">Progreso: <span id="progresoTextoEdit">0/0</span> códigos escaneados</span>
+        </div>
+        <div class="progress">
+            <div id="barraProgresoEdit" class="progress-bar bg-primary" style="width: 0%"></div>
+        </div>
+        <div class="text-center mt-2">
+            <span id="estadoEscaneoEdit" class="text-warning">+ Esperando códigos...</span>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2">
+        <button type="button" id="btnCancelarDivEscanear" class="btn btn-secondary">
+            <i class="fa fa-times me-1"></i>Cancelar
+        </button>
+        <button type="button" id="btnGuardarEscaneadosEdit" class="btn btn-success" disabled>
+            <i class="fa fa-check me-1"></i>Guardar escaneados
+        </button>
+    </div>
+</div>
+<!-- Backdrop para el div de escaneo -->
+<div id="divEscaneoBackdrop" class="d-none" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1054;"></div>
+
+
 <!-- jQuery PRIMERO -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -1251,6 +1423,30 @@ document.addEventListener('DOMContentLoaded', function() {
         for (let pair of formData.entries()) {
             console.log(pair[0] + ': ' + pair[1]);
         }
+
+        // Buscar esta línea: "// Verificar si es producto de código único y necesita escaneo"
+        // Y reemplazar toda esa sección por:
+        // Verificar si es producto de código único y necesita escaneo
+        const esCodigoUnico = $('#es_codigo_unico').is(':checked');
+        const cantidad = parseInt($('#cantidad').val()) || 0;
+
+        if (esCodigoUnico && cantidad > 0 && (!datosProductoTemporal || !datosProductoTemporal.codigosUnicos || datosProductoTemporal.codigosUnicos.length !== cantidad)) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Escaneo requerido',
+                text: 'Debe escanear los códigos únicos antes de guardar el producto',
+                confirmButtonText: 'Entendido'
+            });
+            return;
+        }
+
+        // Si hay códigos escaneados, agregarlos al FormData
+        if (datosProductoTemporal && datosProductoTemporal.codigosUnicos) {
+            datosProductoTemporal.codigosUnicos.forEach(function(codigo, index) {
+                formData.append(`codigos_unicos[${index}]`, codigo);
+            });
+        }
         
         // AJAX submission
         $.ajax({
@@ -1259,33 +1455,36 @@ document.addEventListener('DOMContentLoaded', function() {
             data: formData,
             processData: false,
             contentType: false,
-           success: function(response) {
-            if (response.res) {
-                // Cerrar modal correctamente y limpiar backdrop
-                $('#modal-add-prod').modal('hide');
-                
-                // Forzar limpieza del backdrop después de un breve delay
-                setTimeout(function() {
-                    $('.modal-backdrop').remove();
-                    $('body').removeClass('modal-open');
-                    $('body').css('padding-right', '');
-                }, 300);
-                
-                // Limpiar formulario
-                $('#productoForm').trigger('reset');
-                $('#imagePreview').hide();
-                $('#noImagePlaceholder').show();
-                
-                // Mostrar mensaje de éxito
-                Swal.fire({
-                    title: '¡Éxito!',
-                    text: 'Producto agregado exitosamente',
-                    icon: 'success',
-                    confirmButtonColor: '#3085d6'
-                });
-                
-                // Recargar tabla
-                productsTable.ajax.reload();
+            success: function(response) {
+                if (response.res) {
+                    // Cerrar modal correctamente y limpiar backdrop
+                    $('#modal-add-prod').modal('hide');
+                    
+                    // Forzar limpieza del backdrop después de un breve delay
+                    setTimeout(function() {
+                        $('.modal-backdrop').remove();
+                        $('body').removeClass('modal-open');
+                        $('body').css('padding-right', '');
+                    }, 300);
+                    
+                    // Limpiar formulario
+                    $('#productoForm').trigger('reset');
+                    $('#imagePreview').hide();
+                    $('#noImagePlaceholder').show();
+                    
+                    // CORREGIDO: Limpiar datos temporales ANTES del mensaje de éxito
+                    limpiarDatosTemporalesCompleto();
+                    
+                    // Mostrar mensaje de éxito
+                    Swal.fire({
+                        title: '¡Éxito!',
+                        text: 'Producto agregado exitosamente',
+                        icon: 'success',
+                        confirmButtonColor: '#3085d6'
+                    });
+                    
+                    // Recargar tabla
+                    productsTable.ajax.reload();
 
                 } else {
                     Swal.fire({
@@ -1431,6 +1630,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
             
             productsTable.ajax.reload();
+            // Limpiar datos temporales
+            limpiarDatosTemporalesCompleto();
         });
     }
 
@@ -2674,6 +2875,45 @@ $('#editProductForm').on('submit', function(e) {
     // Siempre guardar almacén como 1
     formData.append('almacen', '1');
     
+    // Buscar esta línea: "// Verificar si es producto de código único y necesita escaneo"
+    // Y reemplazar toda esa sección por:
+
+    // Verificar si es producto de código único y necesita escaneo
+    const esCodigoUnico = $('#es_codigo_unico_edit').is(':checked');
+    const cantidadTotal = parseInt($('#edit_cantidad').val()) || 0;
+    const cantidadOriginal = parseInt($('#edit_cantidad').data('original-value')) || 0;
+    const cantidadNueva = Math.max(0, cantidadTotal - cantidadOriginal);
+
+    console.log('Verificación códigos únicos:', {
+        esCodigoUnico,
+        cantidadTotal,
+        cantidadOriginal,
+        cantidadNueva,
+        datosProductoTemporal
+    });
+
+    if (esCodigoUnico && cantidadNueva > 0) {
+        // Verificar si hay códigos escaneados suficientes
+        if (!datosProductoTemporal || !datosProductoTemporal.codigosUnicos || datosProductoTemporal.codigosUnicos.length !== cantidadNueva) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Escaneo requerido',
+                text: `Debe escanear ${cantidadNueva} códigos únicos antes de actualizar el producto`,
+                confirmButtonText: 'Entendido'
+            });
+            return;
+        }
+    }
+
+    // Si hay códigos escaneados, agregarlos al FormData
+    if (datosProductoTemporal && datosProductoTemporal.codigosUnicos) {
+        console.log('Agregando códigos al FormData:', datosProductoTemporal.codigosUnicos);
+        datosProductoTemporal.codigosUnicos.forEach(function(codigo, index) {
+            formData.append(`codigos_unicos[${index}]`, codigo);
+        });
+    }
+
     // Enviar solicitud AJAX
     $.ajax({
         url: `/admin/kardex/productos/${productId}`,
@@ -2698,9 +2938,14 @@ $('#editProductForm').on('submit', function(e) {
                         confirmButtonColor: '#3085d6'
                     }).then(() => {
 
-                        productsTable.ajax.reload();
+                        // Recargar tabla si está disponible
+                        if (typeof productsTable !== 'undefined' && productsTable.ajax) {
+                            productsTable.ajax.reload();
+                        } else {
+                            window.location.reload();
+                        }
                         console.log("se actualizó producto");
-                        $('#modal-edt-prod').modal('hide');
+
                         
                         setTimeout(function() {
                             $('.modal-backdrop').remove();
@@ -2786,13 +3031,14 @@ function saveEditMultiPrecios(productId) {
                         $('body').css('padding-right', '');
                     }, 300);
                     
-                    // Verificar si productsTable está definido antes de usarlo
-                    if (typeof productsTable !== 'undefined') {
+                    // Recargar la tabla de productos
+                    if (typeof productsTable !== 'undefined' && productsTable.ajax) {
                         productsTable.ajax.reload();
                     } else {
-                        // Si no está definido, recargar la página completa
-                        location.reload();
+                        // Fallback: recargar la página completa
+                        window.location.reload();
                     }
+
                 });
             } else {
                 Swal.fire({
@@ -3129,6 +3375,8 @@ $(document).on('click', '.btn-edt', function() {
                 $('#edit_precio').val(product.precio);
                 $('#edit_costo').val(product.costo);
                 $('#edit_cantidad').val(product.cantidad);
+                // Guardar cantidad original para calcular diferencia
+                $('#edit_cantidad').data('original-value', product.cantidad);
                 $('#edit_codSunat').val(product.codsunat);
 
                 // NUEVO: Configurar el switch de tipo de control
@@ -3328,6 +3576,1005 @@ document.getElementById('es_codigo_unico').addEventListener('change', function (
         const isChecked = $(this).prop('checked');
         $('#tipoProductoText_edit').text(isChecked ? 'Código Único' : 'Cantidad');
     });
+
+    // ================================
+    // FUNCIONALIDAD DE ESCANEO DE CÓDIGOS ÚNICOS
+    // ================================
+
+    // Variables globales para el escaneo
+    let codigosEscaneados = [];
+    let codigosEscaneadosEdit = []; // Agregar esta línea
+    let cantidadRequerida = 0;
+    let modoEscaneo = 'agregar'; // 'agregar' o 'editar'
+    let datosProductoTemporal = null;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        inicializarEscaneoDecodigos();
+        configurarEventosEscaneo();
+    });
+
+    function inicializarEscaneoDecodigos() {
+        // Monitorear cambios en cantidad y tipo de producto para modal agregar
+        $('#cantidad, #es_codigo_unico').on('change input', function() {
+            verificarMostrarBotonEscaneo();
+        });
+
+        // Monitorear cambios para modal editar
+        $('#edit_cantidad, #es_codigo_unico_edit').on('change input', function() {
+            verificarMostrarBotonEscaneo('edit');
+        });
+    }
+
+    function configurarEventosEscaneo() {
+        // Limpiar TODOS los event listeners del input
+        $('#inputCodigoEscaneo').off();
+        $('#inputCodigoEscaneoEdit').off();
+        $('#btnEscanearCodigos').off();
+        $('#btnEscanearCodigos_edit').off();
+        $('#btnAgregarCodigo').off();
+        $('#btnGuardarEscaneados').off();
+
+        // Botones para abrir modal de escaneo
+        $('#btnEscanearCodigos').on('click', function() {
+            abrirModalEscaneo('agregar');
+        });
+
+        $('#btnEscanearCodigos_edit').on('click', function(e) {
+            e.preventDefault();
+            abrirModalEscaneo('editar');
+        });
+
+        // CORREGIDO: Event listener para Enter en el input de escaneo
+        $(document).on('keypress', '#inputCodigoEscaneo', function(e) {
+            if (e.which === 13) { // Enter
+                e.preventDefault();
+                agregarCodigoEscaneado();
+            }
+        });
+
+        $('#btnAgregarCodigo').on('click', function() {
+            console.log('Botón Agregar código clickeado');
+            const input = document.getElementById('inputCodigoEscaneo');
+            if (input && input.value.trim()) {
+                procesarCodigoManual(input.value.trim());
+                input.value = '';
+                input.focus();
+            } else {
+                console.log('Input vacío o no encontrado');
+                if (input) input.focus();
+            }
+        });
+        
+        $('#btnGuardarEscaneados').on('click', function() {
+            guardarCodigosEscaneados();
+        });
+
+        // Limpiar al cerrar modal
+        $('#modalEscanearCodigos').on('hidden.bs.modal', function() {
+            limpiarModalEscaneo();
+        });
+    }
+
+    // SOLUCIÓN AGRESIVA: Forzar funcionalidad del input
+    function configurarInputAgresivo() {
+        const input = document.getElementById('inputCodigoEscaneo');
+        if (!input) return;
+
+        // Limpiar TODOS los event listeners
+        const newInput = input.cloneNode(true);
+        input.parentNode.replaceChild(newInput, input);
+        
+        // Configurar el nuevo input
+        newInput.value = '';
+        newInput.disabled = false;
+        newInput.readOnly = false;
+        newInput.removeAttribute('readonly');
+        newInput.removeAttribute('disabled');
+        newInput.tabIndex = 0;
+        
+        // Estilos forzados
+        newInput.style.pointerEvents = 'auto';
+        newInput.style.userSelect = 'auto';
+        newInput.style.backgroundColor = 'white';
+        newInput.style.cursor = 'text';
+        newInput.style.opacity = '1';
+        
+        // Event listeners directos en el DOM
+        newInput.addEventListener('keydown', function(e) {
+            // Permitir todas las teclas normales
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                e.stopPropagation();
+                agregarCodigoEscaneado();
+            }
+        }, true);
+        
+        newInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                e.stopPropagation();
+                agregarCodigoEscaneado();
+            }
+        }, true);
+        
+        newInput.addEventListener('input', function(e) {
+            // Asegurar que el input siga habilitado
+            this.disabled = false;
+            this.readOnly = false;
+        }, true);
+        
+        // Forzar focus agresivo
+        setTimeout(() => {
+            newInput.focus();
+            newInput.click();
+            newInput.select();
+            
+            // Verificar focus cada 100ms durante 2 segundos
+            let intentos = 0;
+            const verificarFocus = setInterval(() => {
+                if (document.activeElement !== newInput && intentos < 20) {
+                    newInput.focus();
+                    newInput.click();
+                    intentos++;
+                } else {
+                    clearInterval(verificarFocus);
+                    console.log('Input enfocado después de', intentos, 'intentos');
+                }
+            }, 100);
+        }, 100);
+    }
+
+    // SOLUCIÓN EXTREMA: Crear input completamente nuevo
+    function crearInputCompletamenteNuevo() {
+        const contenedor = document.querySelector('#inputCodigoEscaneo').parentElement;
+        const inputViejo = document.getElementById('inputCodigoEscaneo');
+        
+        // Remover input viejo completamente
+        inputViejo.remove();
+        
+        // Crear input completamente nuevo
+        const nuevoInput = document.createElement('input');
+        nuevoInput.type = 'text';
+        nuevoInput.id = 'inputCodigoEscaneo';
+        nuevoInput.className = 'form-control';
+        nuevoInput.placeholder = 'Ingrese o escanee el código';
+        nuevoInput.autocomplete = 'off';
+        nuevoInput.style.cssText = 'pointer-events: auto !important; user-select: auto !important; background-color: white !important; cursor: text !important; opacity: 1 !important;';
+        
+        // Insertar en el contenedor
+        contenedor.appendChild(nuevoInput);
+        
+        // Variable para almacenar el valor
+        let valorActual = '';
+        
+        // Interceptar TODOS los eventos de teclado posibles
+        ['keydown', 'keypress', 'keyup', 'input'].forEach(evento => {
+            nuevoInput.addEventListener(evento, function(e) {
+                console.log('Evento capturado:', evento, 'Tecla:', e.key, 'Código:', e.keyCode);
+                
+                if (evento === 'keydown') {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log('Enter detectado, valor actual:', valorActual);
+                        if (valorActual.trim()) {
+                            procesarCodigoManual(valorActual.trim());
+                            valorActual = '';
+                            nuevoInput.value = '';
+                        }
+                        return false;
+                    }
+                    
+                    // Manejar teclas normales
+                    if (e.key.length === 1) { // Es un carácter normal
+                        valorActual += e.key;
+                        nuevoInput.value = valorActual;
+                        console.log('Carácter agregado:', e.key, 'Valor actual:', valorActual);
+                    } else if (e.key === 'Backspace') {
+                        valorActual = valorActual.slice(0, -1);
+                        nuevoInput.value = valorActual;
+                        console.log('Backspace, valor actual:', valorActual);
+                    }
+                }
+            }, true);
+        });
+        
+        // Forzar focus extremo
+        setTimeout(() => {
+            nuevoInput.focus();
+            nuevoInput.click();
+            console.log('Nuevo input creado y enfocado');
+        }, 100);
+        
+        return nuevoInput;
+    }
+
+    // Función para procesar código manualmente
+    function procesarCodigoManual(codigo) {
+        console.log('Procesando código:', codigo);
+        
+        if (!codigo) {
+            return;
+        }
+        
+        // Validar código duplicado
+        if (codigosEscaneados.includes(codigo)) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Código duplicado',
+                text: 'Este código ya ha sido escaneado',
+                confirmButtonText: 'Entendido'
+            });
+            return;
+        }
+        
+        // Agregar código
+        codigosEscaneados.push(codigo);
+        
+        // Reproducir sonido y actualizar vista
+        reproducirSonidoEscaner();
+        actualizarVistaEscaneo();
+        
+        console.log('Código agregado exitosamente:', codigo);
+    }
+
+    function verificarMostrarBotonEscaneo(contexto = '') {
+        const esEdicion = contexto === 'edit';
+        const checkboxId = esEdicion ? '#es_codigo_unico_edit' : '#es_codigo_unico';
+        const cantidadId = esEdicion ? '#edit_cantidad' : '#cantidad';
+        const containerId = esEdicion ? '#botonEscanearContainer_edit' : '#botonEscanearContainer';
+        const spanId = esEdicion ? '#cantidadRequerida_edit' : '#cantidadRequerida';
+
+        const esCodigoUnico = $(checkboxId).is(':checked');
+        const cantidadTotal = parseInt($(cantidadId).val()) || 0;
+
+        if (esCodigoUnico && cantidadTotal > 0) {
+            let cantidadAEscanear = cantidadTotal;
+            
+            // Si es edición, calcular solo los códigos nuevos
+            if (esEdicion) {
+                const cantidadOriginal = parseInt($(cantidadId).data('original-value')) || 0;
+                cantidadAEscanear = Math.max(0, cantidadTotal - cantidadOriginal);
+                
+                if (cantidadAEscanear === 0) {
+                    $(containerId).hide();
+                    return;
+                }
+            }
+            
+            $(containerId).show();
+            $(spanId).text(cantidadAEscanear);
+        } else {
+            $(containerId).hide();
+        }
+    }
+
+    function abrirModalEscaneo(modo) {
+        console.log('abrirModalEscaneo ejecutado con modo:', modo);
+        modoEscaneo = modo;
+        const esEdicion = modo === 'editar';
+        
+        // Obtener datos del producto
+        const nombreProducto = esEdicion ? $('#edit_nombre').val() : $('#nombre').val();
+        let cantidad = parseInt(esEdicion ? $('#edit_cantidad').val() : $('#cantidad').val()) || 0;
+
+        // Si es edición, calcular solo los códigos nuevos que se necesitan
+        if (esEdicion) {
+            const cantidadOriginal = parseInt($('#edit_cantidad').data('original-value')) || 0;
+            cantidad = Math.max(0, cantidad - cantidadOriginal);
+            
+            if (cantidad === 0) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Sin códigos nuevos',
+                    text: 'No hay códigos nuevos que escanear. La cantidad no ha aumentado.',
+                    confirmButtonText: 'Entendido'
+                });
+                return;
+            }
+        }
+        
+        if (esEdicion) {
+            // Cerrar modal de edición primero
+            $('#modal-edt-prod').modal('hide');
+            
+            // Configurar div de escaneo para edición
+            $('#nombreProductoEscaneoEdit').text(nombreProducto);
+            $('#cantidadEsperadaEdit').text(cantidad);
+            cantidadRequerida = cantidad;
+            
+            // Resetear estado
+            codigosEscaneadosEdit = [];
+            actualizarVistaEscaneoEdit();
+            
+            // Mostrar backdrop y div
+            $('#divEscaneoBackdrop').removeClass('d-none');
+            $('#divEscanearCodigos').removeClass('d-none').addClass('show');
+            
+            // Configurar y habilitar el input CORRECTAMENTE
+            setTimeout(() => {
+                const input = document.getElementById('inputCodigoEscaneoEdit');
+                if (input) {
+                    // Limpiar completamente el input
+                    input.value = '';
+                    
+                    // Remover todos los atributos bloqueantes
+                    input.removeAttribute('readonly');
+                    input.removeAttribute('disabled');
+                    input.removeAttribute('tabindex');
+                    
+                    // Establecer propiedades directamente
+                    input.disabled = false;
+                    input.readOnly = false;
+                    input.tabIndex = 0;
+                    
+                    // Forzar estilos para asegurar que sea interactivo
+                    input.style.pointerEvents = 'auto';
+                    input.style.userSelect = 'auto';
+                    input.style.backgroundColor = 'white';
+                    input.style.cursor = 'text';
+                    
+                    // Forzar focus múltiples veces
+                    input.focus();
+                    input.select();
+                    
+                    // Verificar que realmente esté enfocado
+                    setTimeout(() => {
+                        if (document.activeElement !== input) {
+                            input.focus();
+                        }
+                    }, 50);
+                    
+                    // Asegurar que el botón esté habilitado
+                    $('#btnAgregarCodigoEdit').prop('disabled', false);
+                }
+            }, 200);
+        // Dentro de abrirModalEscaneo(), busca esta sección:
+        } else {
+            // Configurar modal para agregar
+            $('#nombreProductoEscaneo').text(nombreProducto);
+            $('#cantidadEsperada').text(cantidad);
+            cantidadRequerida = cantidad;
+            
+            // Resetear estado
+            codigosEscaneados = [];
+            actualizarVistaEscaneo();
+            
+            // CORREGIDO: Limpiar event listeners antes de configurar nuevos
+            $('#modal-add-prod').off('hidden.bs.modal.escaneo');
+            $('#modalEscanearCodigos').off('shown.bs.modal.inputfix');
+            
+            // Cerrar modal de agregar antes de abrir modal de escaneo
+            $('#modal-add-prod').modal('hide');
+            
+            // Esperar a que se cierre completamente antes de abrir el de escaneo
+            $('#modal-add-prod').one('hidden.bs.modal', function() {
+                // Ahora sí mostrar el modal de escaneo
+                $('#modalEscanearCodigos').modal('show');
+                
+                // Configurar input cuando el modal de escaneo esté completamente visible
+                $('#modalEscanearCodigos').one('shown.bs.modal', function() {
+                    setTimeout(() => {
+                        const input = document.getElementById('inputCodigoEscaneo');
+                        if (input) {
+                            input.value = '';
+                            input.removeAttribute('readonly');
+                            input.removeAttribute('disabled');
+                            input.disabled = false;
+                            input.readOnly = false;
+                            input.focus();
+                            input.select();
+                            console.log('Input configurado después de cerrar modal agregar');
+                        }
+                    }, 300);
+                });
+            });
+        }
+
+    }
+
+
+    function agregarCodigoEscaneadoEdit() {
+        const input = document.getElementById('inputCodigoEscaneoEdit');
+        const codigo = input.value.trim();
+        
+        if (!codigo) {
+            // Solo enfocar si está vacío
+            input.focus();
+            return;
+        }
+        
+        // Validar código duplicado
+        if (codigosEscaneadosEdit.includes(codigo)) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Código duplicado',
+                text: 'Este código ya ha sido escaneado',
+                confirmButtonText: 'Entendido'
+            }).then(() => {
+                input.value = '';
+                input.focus();
+            });
+            return;
+        }
+        
+        // Agregar código
+        codigosEscaneadosEdit.push(codigo);
+        input.value = '';
+        
+        // Reproducir sonido y actualizar vista
+        reproducirSonidoEscaner();
+        actualizarVistaEscaneoEdit();
+        
+        // Asegurar que el input siga habilitado y enfocado
+        setTimeout(() => {
+            input.removeAttribute('readonly');
+            input.removeAttribute('disabled');
+            input.disabled = false;
+            input.readOnly = false;
+            input.focus();
+        }, 100);
+    }
+
+    // Función para forzar la habilitación del input de edición
+    function forzarHabilitacionInputEdit() {
+        const input = document.getElementById('inputCodigoEscaneoEdit');
+        if (input) {
+            // Remover todos los atributos y propiedades bloqueantes
+            input.removeAttribute('readonly');
+            input.removeAttribute('disabled');
+            input.removeAttribute('tabindex');
+            
+            input.disabled = false;
+            input.readOnly = false;
+            input.tabIndex = 0;
+            
+            // Aplicar estilos para asegurar interactividad
+            input.style.pointerEvents = 'auto';
+            input.style.userSelect = 'auto';
+            input.style.backgroundColor = 'white';
+            input.style.cursor = 'text';
+            input.style.opacity = '1';
+            
+            // Forzar focus
+            input.focus();
+            
+            return true;
+        }
+        return false;
+    }
+
+    // Llamar esta función cada vez que se muestre el div de escaneo
+    $(document).on('click', '#btnEscanearCodigos_edit', function() {
+        setTimeout(() => {
+            forzarHabilitacionInputEdit();
+            
+            // Verificar cada 500ms durante 3 segundos que el input esté habilitado
+            let intentos = 0;
+            const verificarInput = setInterval(() => {
+                const input = document.getElementById('inputCodigoEscaneoEdit');
+                if (input && (input.disabled || input.readOnly)) {
+                    forzarHabilitacionInputEdit();
+                }
+                
+                intentos++;
+                if (intentos >= 6) { // 6 intentos = 3 segundos
+                    clearInterval(verificarInput);
+                }
+            }, 500);
+        }, 300);
+    });
+
+    function agregarCodigoEscaneado() {
+        const input = document.getElementById('inputCodigoEscaneo');
+        const codigo = input ? input.value.trim() : '';
+        
+        console.log('agregarCodigoEscaneado llamado, código:', codigo);
+        
+        if (!codigo) {
+            if (input) {
+                input.focus();
+            }
+            return;
+        }
+        
+        procesarCodigoManual(codigo);
+        
+        // Limpiar input
+        if (input) {
+            input.value = '';
+            input.focus();
+        }
+    }
+
+
+    function actualizarVistaEscaneo() {
+        const lista = $('#listaCodigosEscaneados');
+        const mensaje = $('#mensajeNoCodigos');
+        
+        if (codigosEscaneados.length === 0) {
+            mensaje.show();
+            lista.find('.codigo-item').remove();
+        } else {
+            mensaje.hide();
+            
+            // Limpiar y reconstruir lista
+            lista.find('.codigo-item').remove();
+            
+            codigosEscaneados.forEach(function(codigo, index) {
+                const item = $(`
+                    <div class="codigo-item bg-light p-2 mb-2 rounded border-start border-success border-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="font-monospace">${codigo}</span>
+                            <small class="text-muted">#${index + 1}</small>
+                        </div>
+                    </div>
+                `);
+                lista.append(item);
+            });
+        }
+        
+        // Actualizar progreso
+        const progreso = Math.round((codigosEscaneados.length / cantidadRequerida) * 100);
+        $('#progresoTexto').text(`${codigosEscaneados.length}/${cantidadRequerida}`);
+        $('#barraProgreso').css('width', progreso + '%');
+        
+        // Actualizar estado y botón
+        if (codigosEscaneados.length >= cantidadRequerida) {
+            $('#estadoEscaneo').removeClass('text-warning').addClass('text-success')
+                .html('<i class="fa fa-check"></i> Todos los códigos escaneados');
+            $('#btnGuardarEscaneados').prop('disabled', false);
+        } else {
+            const faltan = cantidadRequerida - codigosEscaneados.length;
+            $('#estadoEscaneo').removeClass('text-success').addClass('text-warning')
+                .html(`+ Esperando códigos... (faltan ${faltan})`);
+            $('#btnGuardarEscaneados').prop('disabled', true);
+        }
+    }
+
+    function guardarCodigosEscaneados() {
+        if (codigosEscaneados.length !== cantidadRequerida) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Escaneo incompleto',
+                text: 'Debe escanear todos los códigos requeridos antes de guardar'
+            });
+            return;
+        }
+        
+        // Almacenar códigos ANTES de cerrar el modal
+        datosProductoTemporal = {
+            codigosUnicos: [...codigosEscaneados],
+            cantidadEscaneada: codigosEscaneados.length
+        };
+        
+        // Guardar la cantidad para el mensaje
+        const cantidadEscaneada = codigosEscaneados.length;
+        
+        // CORREGIDO: Remover todos los event listeners antes de cerrar
+        $('#modalEscanearCodigos').off('hidden.bs.modal.reabrirAgregar');
+        $('#modal-add-prod').off('hidden.bs.modal.escaneo');
+        
+        // Cerrar modal de escaneo
+        $('#modalEscanearCodigos').modal('hide');
+        
+        // Mostrar mensaje de éxito y reabrir modal de agregar
+        setTimeout(() => {
+            Swal.fire({
+                icon: 'success',
+                title: 'Códigos escaneados',
+                text: `Se han escaneado ${cantidadEscaneada} códigos correctamente`,
+                confirmButtonText: 'Continuar'
+            }).then(() => {
+                // Reabrir modal de agregar producto
+                $('#modal-add-prod').modal('show');
+            });
+        }, 300);
+    }
+
+    function guardarCodigosEscaneadosEdit() {
+        if (codigosEscaneadosEdit.length !== cantidadRequerida) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Escaneo incompleto',
+                text: 'Debe escanear todos los códigos requeridos antes de guardar'
+            });
+            return;
+        }
+        
+        // Ocultar div y backdrop
+        $('#divEscanearCodigos').addClass('d-none');
+        $('#divEscaneoBackdrop').addClass('d-none');
+        
+        // Almacenar códigos temporalmente para enviar con el producto
+        datosProductoTemporal = {
+            codigosUnicos: codigosEscaneadosEdit,
+            cantidadEscaneada: codigosEscaneadosEdit.length
+        };
+        
+        // Mostrar mensaje de confirmación y luego volver al modal de edición
+        Swal.fire({
+            icon: 'success',
+            title: 'Códigos escaneados',
+            text: `Se han escaneado ${codigosEscaneadosEdit.length} códigos correctamente`,
+            confirmButtonText: 'Continuar'
+        }).then(() => {
+            // Volver a mostrar el modal de edición
+            $('#modal-edt-prod').modal('show');
+        });
+    }
+
+    function mostrarIndicadorCodigosEscaneados() {
+        // Buscar si ya existe un indicador
+        let indicador = $('#indicadorCodigosEscaneados');
+        
+        if (indicador.length === 0) {
+            // Crear indicador si no existe
+            indicador = $(`
+                <div id="indicadorCodigosEscaneados" class="alert alert-success mt-2" style="display: none;">
+                    <i class="fa fa-check-circle me-2"></i>
+                    <strong>Códigos escaneados:</strong> 
+                    <span id="cantidadCodigosEscaneados">0</span> códigos únicos listos para guardar
+                </div>
+            `);
+            
+            // Insertar después del botón de escanear códigos
+            $('#botonEscanearContainer_edit').after(indicador);
+        }
+        
+        // Actualizar y mostrar el indicador
+        if (datosProductoTemporal && datosProductoTemporal.codigosUnicos) {
+            $('#cantidadCodigosEscaneados').text(datosProductoTemporal.codigosUnicos.length);
+            indicador.fadeIn();
+        }
+    }
+
+    function ocultarIndicadorCodigosEscaneados() {
+        $('#indicadorCodigosEscaneados').fadeOut();
+    }
+
+    function limpiarModalEscaneo() {
+        codigosEscaneados = [];
+        cantidadRequerida = 0;
+        
+        // Limpiar input completamente
+        const input = document.getElementById('inputCodigoEscaneo');
+        if (input) {
+            input.value = '';
+            input.disabled = false;
+            input.readOnly = false;
+            input.removeAttribute('readonly');
+            input.removeAttribute('disabled');
+        }
+        
+        $('#nombreProductoEscaneo').text('');
+        $('#cantidadEsperada').text('0');
+        $('#progresoTexto').text('0/0');
+        $('#barraProgreso').css('width', '0%');
+        $('#estadoEscaneo').removeClass('text-success').addClass('text-warning')
+            .text('+ Esperando códigos...');
+        $('#btnGuardarEscaneados').prop('disabled', true);
+        
+        // Limpiar lista de códigos
+        $('#listaCodigosEscaneados').find('.codigo-item').remove();
+        $('#mensajeNoCodigos').show();
+
+        // CORREGIDO: Remover event listeners para evitar bucles
+        $('#modalEscanearCodigos').off('hidden.bs.modal.reabrirAgregar');
+        $('#modal-add-prod').off('hidden.bs.modal.escaneo');
+    }
+
+    function guardarCodigosEscaneados() {
+        if (codigosEscaneados.length !== cantidadRequerida) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Escaneo incompleto',
+                text: 'Debe escanear todos los códigos requeridos antes de guardar'
+            });
+            return;
+        }
+        
+        // Cerrar modal de escaneo
+        $('#modalEscanearCodigos').modal('hide');
+        
+        // Almacenar códigos temporalmente
+        datosProductoTemporal = {
+            codigosUnicos: codigosEscaneados,
+            cantidadEscaneada: codigosEscaneados.length
+        };
+        
+        // Esperar a que se cierre el modal de escaneo y reabrir el de agregar
+        $('#modalEscanearCodigos').off('hidden.bs.modal.reabrirAgregar').on('hidden.bs.modal.reabrirAgregar', function() {
+            // Mostrar mensaje de éxito
+            Swal.fire({
+                icon: 'success',
+                title: 'Códigos escaneados',
+                text: `Se han escaneado los códigos correctamente`,
+                confirmButtonText: 'Continuar'
+            }).then(() => {
+                // Reabrir modal de agregar producto
+                $('#modal-add-prod').modal('show');
+            });
+        });
+    }
+
+    function actualizarVistaEscaneoEdit() {
+    // Actualizar mensaje de códigos
+    const mensajeNoCodigos = codigosEscaneadosEdit.length === 0;
+    $('#listaCodigosEscaneadosEdit').toggleClass('d-none', mensajeNoCodigos);
+    $('#mensajeNoCodigosEdit').toggleClass('d-none', !mensajeNoCodigos);
+    
+    // Actualizar lista de códigos
+    $('#listaCodigosEscaneadosEdit').html(codigosEscaneadosEdit.map(codigo => `
+        <div class="text-white mb-2">
+            <i class="fa fa-check text-success me-2"></i>${codigo}
+        </div>
+    `).join(''));
+    
+    // Actualizar progreso
+    const porcentaje = (codigosEscaneadosEdit.length / cantidadRequerida) * 100;
+    $('#barraProgresoEdit').css('width', `${porcentaje}%`);
+    $('#progresoTextoEdit').text(`${codigosEscaneadosEdit.length}/${cantidadRequerida}`);
+    
+    // Actualizar estado
+    const estado = codigosEscaneadosEdit.length === cantidadRequerida 
+        ? '<i class="fa fa-check text-success"></i> Listo para guardar' 
+        : '<i class="fa fa-plus text-warning"></i> Agregando códigos...';
+    $('#estadoEscaneoEdit').html(estado);
+    
+    // Habilitar/deshabilitar botón de guardar
+    $('#btnGuardarEscaneadosEdit').prop('disabled', codigosEscaneadosEdit.length < cantidadRequerida);
+}
+
+    // Eventos para el div de escaneo
+    $(document).ready(function() {
+        $('#btnCerrarDivEscanear, #btnCancelarDivEscanear').on('click', function() {
+            // Ocultar el div y backdrop
+            $('#divEscanearCodigos').removeClass('show').addClass('d-none');
+            $('#divEscaneoBackdrop').addClass('d-none');
+            
+            limpiarModalEscaneo();
+            
+            // Volver a mostrar el modal de edición
+            $('#modal-edt-prod').modal('show');
+        });
+
+        $('#btnGuardarEscaneadosEdit').on('click', function() {
+            if (codigosEscaneadosEdit.length < cantidadRequerida) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Escaneo incompleto',
+                    text: 'Debe escanear todos los códigos requeridos antes de guardar'
+                });
+                return;
+            }
+            
+            // Llamar a la función que maneja el guardado correctamente
+            guardarCodigosEscaneadosEdit();
+        });
+
+
+        // Evento de enter para agregar código en el div de edición
+        $('#inputCodigoEscaneoEdit').on('keypress', function(e) {
+            if (e.which === 13) { // Enter
+                e.preventDefault();
+                agregarCodigoEscaneadoEdit(); // Cambiar a agregarCodigoEscaneadoEdit
+            }
+        });
+
+        // Evento para habilitar/deshabilitar botón según input
+        $('#inputCodigoEscaneoEdit').on('input', function() {
+            const valor = $(this).val().trim();
+            $('#btnAgregarCodigoEdit').prop('disabled', !valor);
+        });
+
+        $(document).on('click', '#btnAgregarCodigoEdit', function() {
+            // Asegurar que el input esté habilitado antes de procesar
+            forzarHabilitacionInputEdit();
+            agregarCodigoEscaneadoEdit();
+        });
+    });
+
+    // Asegurar que el input siempre esté habilitado cuando reciba focus
+    $(document).on('focus', '#inputCodigoEscaneoEdit', function() {
+        const input = this;
+        
+        // Remover atributos bloqueantes
+        input.removeAttribute('readonly');
+        input.removeAttribute('disabled');
+        input.disabled = false;
+        input.readOnly = false;
+        
+        // Aplicar estilos de focus
+        $(input).css({
+            'pointer-events': 'auto',
+            'user-select': 'auto',
+            'background-color': 'white',
+            'border': '1px solid #86b7fe',
+            'box-shadow': '0 0 0 0.25rem rgba(13, 110, 253, 0.25)',
+            'outline': 'none'
+        });
+    });
+
+    // Restaurar borde normal cuando pierda el focus
+    $(document).on('blur', '#inputCodigoEscaneoEdit', function() {
+        $(this).css({
+            'border': '1px solid #ced4da',
+            'box-shadow': 'none'
+        });
+    });
+
+    function limpiarDatosTemporalesCompleto() {
+        datosProductoTemporal = null;
+        codigosEscaneados = [];
+        codigosEscaneadosEdit = [];
+        cantidadRequerida = 0;
+        modoEscaneo = 'agregar';
+        
+        // AGREGADO: Limpiar event listeners
+        limpiarEventListenersModales();
+        
+        // Ocultar indicador de códigos escaneados
+        if (typeof ocultarIndicadorCodigosEscaneados === 'function') {
+            ocultarIndicadorCodigosEscaneados();
+        }
+    }
+
+    // Reproducir sonido de escáner
+    function reproducirSonidoEscaner() {
+        // Crear sonido usando Web Audio API
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // Asegurar que el input esté habilitado después del sonido
+        setTimeout(() => {
+            const inputEdit = $('#inputCodigoEscaneoEdit');
+            if (inputEdit) {
+                inputEdit.prop('readonly', false);
+                inputEdit.prop('disabled', false);
+                inputEdit.removeAttr('readonly');
+                inputEdit.removeAttr('disabled');
+                inputEdit.focus();
+            }
+        }, 100);
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.value = 800;
+        oscillator.type = "square";
+
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.1);
+    }
+
+    // FUNCIÓN TEMPORAL DE DEBUG - Remover después de solucionar
+    function debugInputEdit() {
+        const input = document.getElementById('inputCodigoEscaneoEdit');
+        if (input) {
+            console.log('=== DEBUG INPUT EDIT ===');
+            console.log('Input encontrado:', !!input);
+            console.log('Disabled:', input.disabled);
+            console.log('ReadOnly:', input.readOnly);
+            console.log('TabIndex:', input.tabIndex);
+            console.log('Style pointer-events:', input.style.pointerEvents);
+            console.log('Style user-select:', input.style.userSelect);
+            console.log('Computed style:', window.getComputedStyle(input).pointerEvents);
+            console.log('Active element:', document.activeElement === input);
+            console.log('======================');
+        } else {
+            console.log('Input inputCodigoEscaneoEdit NO encontrado');
+        }
+    }
+
+    // Llamar debug cuando se abra el div de escaneo
+    $(document).on('click', '#btnEscanearCodigos_edit', function() {
+        setTimeout(() => {
+            debugInputEdit();
+        }, 500);
+    });
+
+    // FUNCIÓN TEMPORAL DE DEBUG para modal agregar - Remover después de solucionar
+    function debugInputAgregar() {
+        const input = document.getElementById('inputCodigoEscaneo');
+        if (input) {
+            console.log('=== DEBUG INPUT AGREGAR ===');
+            console.log('Input encontrado:', !!input);
+            console.log('Disabled:', input.disabled);
+            console.log('ReadOnly:', input.readOnly);
+            console.log('TabIndex:', input.tabIndex);
+            console.log('Style pointer-events:', input.style.pointerEvents);
+            console.log('Style user-select:', input.style.userSelect);
+            console.log('Computed style:', window.getComputedStyle(input).pointerEvents);
+            console.log('Active element:', document.activeElement === input);
+            console.log('Input value:', input.value);
+            console.log('Input type:', input.type);
+            console.log('Parent visible:', $(input).parent().is(':visible'));
+            console.log('Input visible:', $(input).is(':visible'));
+            
+            // Intentar escribir programáticamente
+            input.value = 'TEST';
+            console.log('Después de escribir TEST:', input.value);
+            
+            // Intentar focus programático
+            input.focus();
+            console.log('Después de focus:', document.activeElement === input);
+            console.log('===========================');
+        } else {
+            console.log('Input inputCodigoEscaneo NO encontrado');
+        }
+    }
+
+    // NUEVA FUNCIÓN: Limpiar todos los event listeners de modales
+    function limpiarEventListenersModales() {
+        $('#modalEscanearCodigos').off('hidden.bs.modal.reabrirAgregar');
+        $('#modal-add-prod').off('hidden.bs.modal.escaneo');
+        $('#modalEscanearCodigos').off('shown.bs.modal.inputfix');
+    }
+    
+    // Llamar debug cuando se abra el modal de agregar
+    $(document).on('click', '#btnEscanearCodigos', function() {
+        setTimeout(() => {
+            debugInputAgregar();
+        }, 500);
+    });
+
+    // CORREGIDO: Event listeners para botones de cerrar (X)
+    $(document).ready(function() {
+        // Botón X del modal de escaneo
+        $('#modalEscanearCodigos .btn-close').on('click', function() {
+            // Limpiar event listeners
+            $('#modalEscanearCodigos').off('hidden.bs.modal.reabrirAgregar');
+            $('#modal-add-prod').off('hidden.bs.modal.escaneo');
+            
+            // Cerrar modal
+            $('#modalEscanearCodigos').modal('hide');
+            
+            // Reabrir modal de agregar después de un delay
+            setTimeout(() => {
+                $('#modal-add-prod').modal('show');
+            }, 300);
+        });
+        
+        // Botón X del modal de agregar producto
+        $('#modal-add-prod .btn-close').on('click', function() {
+            // Limpiar todos los event listeners
+            $('#modalEscanearCodigos').off('hidden.bs.modal.reabrirAgregar');
+            $('#modal-add-prod').off('hidden.bs.modal.escaneo');
+            
+            // Limpiar datos temporales
+            limpiarDatosTemporalesCompleto();
+            
+            // Cerrar modal normalmente
+            $('#modal-add-prod').modal('hide');
+        });
+        
+        // Botón X del div de escaneo (edición)
+        $('#btnCerrarDivEscanear').on('click', function() {
+            $('#divEscanearCodigos').removeClass('show').addClass('d-none');
+            $('#divEscaneoBackdrop').addClass('d-none');
+            
+            // Limpiar datos temporales de edición
+            codigosEscaneadosEdit = [];
+            
+            // Volver a mostrar el modal de edición
+            $('#modal-edt-prod').modal('show');
+        });
+        
+        // Botón X del modal de edición
+        $('#modal-edt-prod .btn-close').on('click', function() {
+            // Limpiar datos temporales
+            limpiarDatosTemporalesCompleto();
+            
+            // Cerrar modal normalmente
+            $('#modal-edt-prod').modal('hide');
+        });
+    });
+
 
 </script>
 @endpush
